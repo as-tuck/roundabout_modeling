@@ -1,0 +1,32 @@
+entry, lane 0
+numcars: 32
+average flow: 0.056140
+
+exit, lane 0
+numcars: 102
+average flow: 0.165316
+
+entry, lane 1
+numcars: 46
+average flow: 0.122016
+
+exit, lane 1
+numcars: 10
+average flow: 0.017953
+
+entry, lane 2
+numcars: 41
+average flow: 0.108179
+
+exit, lane 2
+numcars: 0
+average flow: 0.000000
+
+entry, lane 3
+numcars: 31
+average flow: 0.054007
+
+exit, lane 3
+numcars: 38
+average flow: 0.067857
+
