@@ -49,6 +49,7 @@ int main() {
         meanTrafficFlow("entry", ped_count_in);
         meanTrafficFlow("exit", ped_count_out);
 
+        // for i < 15, pedestrians are generated too frequently for cars to make it through the roundabout.
         for(int i = 200; i >= 15; i = i / 1.45 ) {
             traffic.reset(i);
             clearCarData(); //clean files
