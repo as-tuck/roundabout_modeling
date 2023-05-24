@@ -18,7 +18,7 @@ void trafficFlow(int lane, string type);
 
 //type: entry or exit
 //calculates average traffic flow across all lanes
-void meanTrafficFlow(string typ, int numpeds);
+void totalTrafficFlow(string typ, int numpeds);
 
 const int NCARS = 150;
 
@@ -45,9 +45,9 @@ int main() {
             trafficFlow(j,"exit");
         }
         
-        //write to cardata2.csv to get mean flow value across all entries,exits
-        meanTrafficFlow("entry", ped_count_in);
-        meanTrafficFlow("exit", ped_count_out);
+        //write to cardata2.csv to get total flow value across all entries,exits
+        totalTrafficFlow("entry", ped_count_in);
+        totalTrafficFlow("exit", ped_count_out);
 
         // for i < 15, pedestrians are generated too frequently for cars to make it through the roundabout.
         for(int i = 200; i >= 15; i = i / 1.45 ) {
@@ -69,9 +69,9 @@ int main() {
                 trafficFlow(j,"exit");
             }
             
-            //write to cardata2.csv to get mean flow value across all entries,exits
-            meanTrafficFlow("entry", ped_count_in);
-            meanTrafficFlow("exit", ped_count_out);
+            //write to cardata2.csv to get total flow value across all entries,exits
+            totalTrafficFlow("entry", ped_count_in);
+            totalTrafficFlow("exit", ped_count_out);
         }
     } catch(string e) {
         cout << e << '\n';
@@ -177,27 +177,27 @@ void trafficFlow(int lane, string type) {
     fout.close();
 }
 
-void meanTrafficFlow(string type, int numpeds) {
+void totalTrafficFlow(string type, int numpeds) {
     fstream fin;
     fstream fout;
     fin.open(".\\data\\cardata.txt", std::ios::in);
     fout.open(".\\data\\cardata2.csv", std::ios::out | std::ios::app);
     if(!fin.is_open()) {
-        throw("fin open, meantrafficflow");
+        throw("fin open, totaltrafficflow");
     }
     if(!fout.is_open()) {
-        throw("fout open, meantrafficFlow");
+        throw("fout open, totaltrafficFlow");
     }
     string s = "";
     //number of cars through, total
     int numcars = 0;
-    //decimal values of the mean, expressed as an integer
-    int means_i = 0;
-    //mean re-expressed as a float between 0 and 1
-    float means_f = 0;
+    //decimal values of the total flow, expressed as an integer
+    int flows_i = 0;
+    //flow re-expressed as a float between 0 and 1
+    float flows_f = 0;
     //values for the current line
     int curnum = 0;
-    int curmean = 0;
+    int curflow = 0;
 
     while(!fin.eof()) {
         getline(fin, s);
@@ -216,21 +216,23 @@ void meanTrafficFlow(string type, int numpeds) {
                 //"average flow: 0._"
                 getline(fin,s);
                 s = s.substr(16);
-                curmean = stoi(s) / 4;
+                curflow = stoi(s);
+
+                //at most 1 car can pass any entry/exit in a single tic
+                //if any cars passed an entrance or exit, and we find a decimal value of 0, then the flow rate was 1
+                if(curflow == 0 && curnum != 0) {
+                    curflow = 1000000; //account for division to return to a float
+                }
 
                 numcars += curnum;
-                means_i += curmean;
-            }
-            //flow is bound [0,1], so if we get 0's after the decimal and any cars have gone through, then the mean flow is 1
-            if(means_i == 0 && numcars != 0) {
-                means_i = 1;
+                flows_i += curflow;
             }
         }
     }
-    means_f = float(means_i) / 1000000;
+    flows_f = float(flows_i) / 1000000;
 
     //carflow,numpeds
-    string line = std::to_string(means_f) + ',' + std::to_string(numpeds) + ',' + type + '\n';
+    string line = std::to_string(flows_f) + ',' + std::to_string(numpeds) + ',' + type + '\n';
 
     fout << line;
     fout.flush();
